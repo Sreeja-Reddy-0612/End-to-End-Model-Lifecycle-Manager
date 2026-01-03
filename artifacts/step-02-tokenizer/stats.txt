@@ -1,0 +1,7 @@
+Model: bert-base-uncased
+Tokenizer max length: 512
+Average token length: 313
+Maximum token length: 3127
+Samples exceeding max length: 14.80%
+
+WARNING: Truncation will occur during training if not handled explicitly.

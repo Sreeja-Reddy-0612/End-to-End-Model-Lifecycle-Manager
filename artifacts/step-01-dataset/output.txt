@@ -1,0 +1,9 @@
+Dataset Type: <class 'datasets.arrow_dataset.Dataset'>
+Features: {'text': Value('string'), 'label': ClassLabel(names=['neg', 'pos'])}
+
+Sample record:
+{'text': 'I rented I AM CURIOUS-YELLOW from my video store...', 'label': 0}
+
+Label distribution:
+Label 0: 12500
+Label 1: 12500

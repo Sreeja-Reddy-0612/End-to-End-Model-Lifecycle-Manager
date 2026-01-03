@@ -1,0 +1,12 @@
+Dataset({
+    features: ['input_ids', 'token_type_ids', 'attention_mask', 'labels'],
+    num_rows: 25000
+})
+
+Sample record:
+- input_ids: length = 512 (padded & truncated)
+- attention_mask: 1 for real tokens, 0 for padding
+- token_type_ids: all zeros (single sequence)
+- labels: 0
+
+All samples are now Trainer-ready.
