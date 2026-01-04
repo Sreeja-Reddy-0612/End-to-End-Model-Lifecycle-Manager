@@ -1,0 +1,5 @@
+LoRA / PEFT sanity run
+- Trainable params: 296,450
+- Total params: 109,780,228
+- Trainable %: 0.27%
+- Trainer loop verified
