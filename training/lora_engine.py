@@ -9,16 +9,16 @@ from training.metrics import compute_metrics
 
 
 def run_lora_finetuning(
-    model_name: str,
+    model_name,
     tokenized_train_ds,
     tokenized_eval_ds,
-    output_dir: str = "outputs/lora_finetune"
 ):
-    """
-    Runs LoRA / PEFT fine-tuning.
-    """
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
+    from peft import get_peft_model, LoraConfig, TaskType
 
-    base_model = AutoModelForSequenceClassification.from_pretrained(
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    model = AutoModelForSequenceClassification.from_pretrained(
         model_name,
         num_labels=2
     )
@@ -26,38 +26,51 @@ def run_lora_finetuning(
     lora_config = LoraConfig(
         task_type=TaskType.SEQ_CLS,
         r=8,
-        lora_alpha=16,
+        lora_alpha=32,
         lora_dropout=0.1,
+        bias="none",
         target_modules=["query", "value"]
     )
 
-    model = get_peft_model(base_model, lora_config)
-
-    # Print trainable parameters (VERY IMPORTANT)
+    model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
 
     training_args = TrainingArguments(
-        output_dir=output_dir,
-        eval_strategy="epoch",
-        save_strategy="epoch",
-        learning_rate=2e-4,  # higher LR for adapters
-        per_device_train_batch_size=8,
-        per_device_eval_batch_size=8,
-        num_train_epochs=3,
-        logging_dir=f"{output_dir}/logs",
-        load_best_model_at_end=True,
-        metric_for_best_model="accuracy",
-        report_to="none"
+    output_dir="outputs/lora_tmp",
+    per_device_train_batch_size=8,
+    per_device_eval_batch_size=8,
+    eval_strategy="no",   # ✅ FIXED
+    num_train_epochs=1,
+    logging_steps=100,
+    save_strategy="no",
+    report_to="none"
     )
+
 
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=tokenized_train_ds,
         eval_dataset=tokenized_eval_ds,
-        compute_metrics=compute_metrics
+        tokenizer=tokenizer
     )
 
-    trainer.train()
+    # trainer.train()
 
-    return trainer, model
+    # # ✅ RETURN TOKENIZER ALSO
+    # return trainer, model, tokenizer
+    try:
+        
+        trainer.train()
+    except KeyboardInterrupt:
+        
+        print("⚠️ Training interrupted manually — saving LoRA adapters anyway")
+    finally:
+        
+        # Ensure adapters are ALWAYS saved
+        model.save_pretrained("outputs/lora_finetune")
+        tokenizer.save_pretrained("outputs/lora_finetune")
+        print("✅ LoRA adapters saved to outputs/lora_finetune")
+
+    return trainer, model, tokenizer
+

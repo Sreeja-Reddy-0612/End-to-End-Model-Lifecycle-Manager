@@ -22,8 +22,14 @@ test_tok = test_ds.map(
 )
 
 # LoRA training
-trainer, model = run_lora_finetuning(
+trainer, model, tokenizer = run_lora_finetuning(
     model_name="bert-base-uncased",
     tokenized_train_ds=train_tok,
     tokenized_eval_ds=test_tok
 )
+
+# ---- SAVE LoRA ADAPTERS (STEP-6 prerequisite) ----
+# model.save_pretrained("outputs/lora_finetune")
+# tokenizer.save_pretrained("outputs/lora_finetune")
+
+print("✅ LoRA adapters saved to outputs/lora_finetune")
